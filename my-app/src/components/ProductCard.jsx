@@ -87,7 +87,6 @@ const ProductCard = ({ product, isDark }) => {
           borderRadius: '8px',
           marginBottom: '12px'
         }}>
-          🖼️ Заглушка
         </div>
       )}
 
