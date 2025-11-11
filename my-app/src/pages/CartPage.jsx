@@ -1,8 +1,11 @@
-import React, { useContext } from 'react';
+import React from 'react';
+import { useCart } from '../context/CartContext'; 
 import AppContext from '../context/AppContext';
+import { useContext } from 'react';
 
 const CartPage = () => {
-  const { cart, setCart, isDark } = useContext(AppContext);
+  const { items, removeItem, clearCart, totalPrice, totalItems } = useCart(); 
+  const { isDark } = useContext(AppContext);
 
   const theme = isDark ? {
     text: '#ffffff',
@@ -20,21 +23,14 @@ const CartPage = () => {
     button: '#2196F3'
   };
 
-  const removeFromCart = (id) => {
-    setCart(prev => prev.filter(item => item.id !== id));
-  };
-
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
   return (
     <div style={{ padding: '20px', color: theme.text }}>
       <h1>Корзина</h1>
-      {cart.length === 0 ? (
+      {items.length === 0 ? (
         <p>Корзина пуста</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
-          {cart.map(item => (
+          {items.map(item => (
             <li key={item.id} style={{
               padding: '16px',
               backgroundColor: theme.cardBg,
@@ -47,7 +43,7 @@ const CartPage = () => {
               <span style={{ fontWeight: 'bold' }}>{item.name}</span>
               <div style={{ color: theme.price, fontSize: '14px' }}>Цена: {item.price} ₽ × {item.quantity}</div>
               <button
-                onClick={() => removeFromCart(item.id)}
+                onClick={() => removeItem(item.id)}
                 style={{
                   marginTop: '8px',
                   padding: '4px 8px',
@@ -70,7 +66,7 @@ const CartPage = () => {
       </div>
       <button
         onClick={() => alert('Заказ оформлен!')}
-        disabled={cart.length === 0}
+        disabled={items.length === 0}
         style={{
           marginTop: '10px',
           padding: '12px 24px',
@@ -78,7 +74,7 @@ const CartPage = () => {
           color: 'white',
           border: 'none',
           borderRadius: '8px',
-          cursor: cart.length === 0 ? 'not-allowed' : 'pointer',
+          cursor: items.length === 0 ? 'not-allowed' : 'pointer',
           fontSize: '16px',
           fontWeight: 'bold',
           transition: 'background 0.3s'

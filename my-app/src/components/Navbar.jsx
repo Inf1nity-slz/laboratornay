@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppContext from '../context/AppContext';
+import { useCart } from '../context/CartContext'; 
 
 const Navbar = () => {
-  const { isDark, setIsDark, cart, user, setUser } = useContext(AppContext);
+  const { isDark, setIsDark, user, setUser } = useContext(AppContext);
+  const { totalItems } = useCart(); 
   const navigate = useNavigate();
 
   const theme = isDark ? {
@@ -21,8 +23,6 @@ const Navbar = () => {
     border: '#ddd',
     text: '#2c3e50'
   };
-
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleLogout = () => {
     setUser(null);
@@ -49,7 +49,7 @@ const Navbar = () => {
         {[
           { name: 'Главная', path: '/', icon: '🏠' },
           { name: 'Каталог', path: '/catalog', icon: '📦' },
-          { name: 'Корзина', path: '/cart', icon: '🛒', badge: totalItems > 0 ? totalItems : null }
+          { name: 'Корзина', path: '/cart', icon: '🛒', badge: totalItems > 0 ? totalItems : null } 
         ].map(item => (
           <button
             key={item.path}

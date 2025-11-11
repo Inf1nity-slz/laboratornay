@@ -1,7 +1,9 @@
 import React, { useContext } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 import AppContext from '../context/AppContext';
 
 const HomePage = () => {
+  const navigate = useNavigate(); 
   const { isDark } = useContext(AppContext);
 
   const theme = isDark ? {
@@ -45,7 +47,7 @@ const HomePage = () => {
         Широкий ассортимент, быстрая доставка и отличный сервис — всё для вашего автомобиля.
       </p>
       <button
-        onClick={() => window.location.href = '/catalog'}
+        onClick={() => navigate('/catalog')} 
         style={{
           padding: '14px 28px',
           fontSize: '18px',
