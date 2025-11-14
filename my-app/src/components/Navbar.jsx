@@ -44,7 +44,6 @@ const Navbar = () => {
         <span style={{ fontSize: '20px', fontWeight: 'bold', color: theme.text }}>🚗</span>
         <span style={{ fontSize: '18px', fontWeight: 'bold', color: theme.text }}>АвтоЗапчасти</span>
       </div>
-
       <div style={{ display: 'flex', gap: '12px' }}>
         {[
           { name: 'Главная', path: '/', icon: '🏠' },
@@ -98,7 +97,6 @@ const Navbar = () => {
             )}
           </button>
         ))}
-
         {user ? (
           <button
             onClick={() => navigate('/dashboard')}
@@ -132,8 +130,25 @@ const Navbar = () => {
             Войти
           </button>
         )}
-      </div>
 
+        {user && user.role_id === 1 && (
+          <button
+            onClick={() => navigate('/admin')}
+            style={{
+              background: window.location.pathname === '/admin' ? theme.activeLink : 'transparent',
+              color: window.location.pathname === '/admin' ? 'white' : theme.inactiveLink,
+              border: `1px solid ${theme.border}`,
+              padding: '8px 14px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            Админ-панель
+          </button>
+        )}
+      </div>
       <button
         onClick={() => setIsDark(!isDark)}
         style={{
@@ -151,7 +166,6 @@ const Navbar = () => {
       >
         {isDark ? '☀️ Светлая' : '🌙 Тёмная'}
       </button>
-
       {user && (
         <button
           onClick={handleLogout}

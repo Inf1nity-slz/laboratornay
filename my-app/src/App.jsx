@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AppContext from './context/AppContext';
 import Navbar from './components/Navbar';
@@ -7,11 +7,20 @@ import CatalogPage from './pages/CatalogPage';
 import CartPage from './pages/CartPage';
 import DashboardPage from './pages/DashboardPage';
 import LoginForm from './components/LoginForm';
-import { CartProvider } from './context/CartContext'; 
+import AdminPanel from './components/AdminPanel'; 
+import { CartProvider } from './context/CartContext';
+import { getUser } from './utils/api';
 
 function App() {
   const [isDark, setIsDark] = useState(false);
   const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const savedUser = getUser();
+    if (savedUser) {
+      setUser(savedUser);
+    }
+  }, []);
 
   const contextValue = {
     isDark,
@@ -41,6 +50,7 @@ function App() {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/login" element={<LoginForm isLogin={true} isDark={isDark} />} />
               <Route path="/register" element={<LoginForm isLogin={false} isDark={isDark} />} />
+              <Route path="/admin" element={<AdminPanel />} /> 
             </Routes>
           </div>
         </Router>

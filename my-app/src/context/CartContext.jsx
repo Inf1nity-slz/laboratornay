@@ -55,10 +55,19 @@ const cartReducer = (state, action) => {
       };
 
     case ACTIONS.LOAD_CART:
-      return {
-        ...state,
-        items: action.payload
-      };
+      if (Array.isArray(action.payload)) {
+        console.log('Загружаем корзину из localStorage:', action.payload); 
+        return {
+          ...state,
+          items: action.payload
+        };
+      } else {
+        console.warn('LOAD_CART: payload is not an array, using empty array');
+        return {
+          ...state,
+          items: []
+        };
+      }
 
     default:
       return state;
@@ -77,18 +86,37 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
+    console.log('savedCart from localStorage:', savedCart); 
+
     if (savedCart) {
       try {
         const parsedCart = JSON.parse(savedCart);
-        dispatch({ type: ACTIONS.LOAD_CART, payload: parsedCart });
+        console.log('Parsed cart:', parsedCart); 
+
+        if (Array.isArray(parsedCart)) {
+          dispatch({ type: ACTIONS.LOAD_CART, payload: parsedCart });
+        } else {
+          console.warn('Saved cart in localStorage is not an array, resetting');
+          localStorage.setItem('cart', JSON.stringify([]));
+          dispatch({ type: ACTIONS.LOAD_CART, payload: [] });
+        }
       } catch (e) {
-        console.error('Ошибка при загрузке корзины:', e);
+        console.error('Ошибка при загрузке корзины из localStorage:', e);
+        localStorage.setItem('cart', JSON.stringify([]));
+        dispatch({ type: ACTIONS.LOAD_CART, payload: [] });
       }
+    } else {
+      console.log('Корзина в localStorage пуста');
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(state.items));
+    try {
+      localStorage.setItem('cart', JSON.stringify(state.items));
+      console.log('Сохранили корзину в localStorage:', state.items); 
+    } catch (e) {
+      console.error('Ошибка при сохранении корзины в localStorage:', e);
+    }
   }, [state.items]);
 
   const addItem = (product) => {

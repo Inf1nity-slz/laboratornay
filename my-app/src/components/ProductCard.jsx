@@ -1,12 +1,16 @@
 import React from 'react';
-import { useCart } from '../context/CartContext'; 
+import { useCart } from '../context/CartContext';
 
 const ProductCard = ({ product, isDark }) => {
   const { addItem } = useCart();
-  const { id, name, brand, price, image } = product;
+  const { id, name, description, brand, price, image, product_discount_percent, discounted_price, user_discount_percent, user_product_discount_percent, final_price } = product;
 
   const handleAddToCart = () => {
-    addItem(product);
+    const itemToAdd = {
+      ...product,
+      price: final_price !== undefined ? final_price : (discounted_price || price) 
+    };
+    addItem(itemToAdd);
   };
 
   const theme = isDark ? {
@@ -15,15 +19,31 @@ const ProductCard = ({ product, isDark }) => {
     border: '#444',
     boxShadow: '0 6px 16px rgba(0,0,0,0.3)',
     price: '#e74c3c',
-    button: '#4CAF50'
+    button: '#4CAF50',
+    originalPrice: '#95a5a6'
   } : {
     text: '#2c3e50',
     cardBg: '#ffffff',
     border: '#ddd',
     boxShadow: '0 6px 16px rgba(0,0,0,0.1)',
     price: '#e74c3c',
-    button: '#2196F3'
+    button: '#2196F3',
+    originalPrice: '#95a5a6'
   };
+
+  const hasProductDiscount = product_discount_percent && product_discount_percent > 0;
+  const hasUserDiscount = user_discount_percent && user_discount_percent > 0;
+  const hasUserProductDiscount = user_product_discount_percent && user_product_discount_percent > 0;
+  const hasAnyDiscount = hasProductDiscount || hasUserDiscount || hasUserProductDiscount;
+
+  let totalDiscountText = '';
+  if (hasAnyDiscount) {
+    const discounts = [];
+    if (hasProductDiscount) discounts.push(`-${product_discount_percent}% (товар)`);
+    if (hasUserDiscount) discounts.push(`-${user_discount_percent}% (персональная)`);
+    if (hasUserProductDiscount) discounts.push(`-${user_product_discount_percent}% (перс. на товар)`);
+    totalDiscountText = `(${discounts.join(', ')})`;
+  }
 
   return (
     <div style={{
@@ -56,7 +76,6 @@ const ProductCard = ({ product, isDark }) => {
         background: `linear-gradient(90deg, ${theme.button}, ${theme.price})`,
         borderRadius: '12px 12px 0 0'
       }}></div>
-
       {image ? (
         <div style={{
           width: '100%',
@@ -89,7 +108,6 @@ const ProductCard = ({ product, isDark }) => {
         }}>
         </div>
       )}
-
       <h3 style={{
         margin: '8px 0',
         color: theme.text,
@@ -98,7 +116,19 @@ const ProductCard = ({ product, isDark }) => {
       }}>
         {name}
       </h3>
-
+      <p style={{
+        margin: '4px 0',
+        color: '#7f8c8d',
+        fontSize: '14px',
+        fontStyle: 'italic',
+        maxHeight: '60px',
+        overflow: 'hidden',
+        textAlign: 'left',
+        wordBreak: 'break-word',
+        lineHeight: '1.4'
+      }}>
+        {description || 'Описание отсутствует'}
+      </p>
       <p style={{
         margin: '4px 0',
         color: '#7f8c8d',
@@ -107,16 +137,17 @@ const ProductCard = ({ product, isDark }) => {
       }}>
         {brand}
       </p>
-
-      <p style={{
-        margin: '8px 0',
-        color: theme.price,
-        fontWeight: 'bold',
-        fontSize: '16px'
-      }}>
-        Цена: {price} ₽
-      </p>
-
+      <div style={{ margin: '8px 0' }}>
+        {hasAnyDiscount && (
+          <span style={{ color: theme.originalPrice, textDecoration: 'line-through', fontSize: '14px' }}>
+            {price} ₽
+          </span>
+        )}
+        <br />
+        <span style={{ color: theme.price, fontWeight: 'bold', fontSize: '16px' }}>
+          {final_price !== undefined ? final_price : (discounted_price || price)} ₽ {hasAnyDiscount && totalDiscountText}
+        </span>
+      </div>
       <button
         onClick={handleAddToCart}
         style={{

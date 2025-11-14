@@ -1,27 +1,48 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppContext from '../context/AppContext';
+import { loginUser, registerUser, saveUser } from '../utils/api';
 
 const LoginForm = ({ isLogin = true, isDark = false }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
+  const [number, setNumber] = useState('');
+  const [error, setError] = useState('');
   const { setUser } = useContext(AppContext);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     if (isLogin) {
-      if (email && password) {
-        setUser({ email, name: email.split('@')[0] });
+      if (!email || !password) {
+        setError('Email и пароль обязательны');
+        return;
+      }
+      try {
+        const response = await loginUser(email, password);
+        const userData = response.user;
+        setUser(userData);
+        saveUser(userData);
         alert('Успешный вход!');
         navigate('/dashboard');
+      } catch (err) {
+        setError(err.message);
       }
     } else {
-      if (name && email && password) {
-        setUser({ name, email });
-        alert('Успешная регистрация!');
-        navigate('/dashboard');
+      if (!name || !email || !password) {
+        setError('Имя, email и пароль обязательны');
+        return;
+      }
+      try {
+        await registerUser({ name, email, password, address, number });
+        alert('Успешная регистрация! Пожалуйста, войдите.');
+        navigate('/login');
+      } catch (err) {
+        setError(err.message);
       }
     }
   };
@@ -51,6 +72,17 @@ const LoginForm = ({ isLogin = true, isDark = false }) => {
       <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>
         {isLogin ? 'Вход' : 'Регистрация'}
       </h2>
+      {error && (
+        <div style={{
+          padding: '10px',
+          backgroundColor: '#e74c3c',
+          color: 'white',
+          borderRadius: '6px',
+          marginBottom: '16px'
+        }}>
+          {error}
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         {!isLogin && (
           <div style={{ marginBottom: '16px' }}>
@@ -105,6 +137,42 @@ const LoginForm = ({ isLogin = true, isDark = false }) => {
             }}
           />
         </div>
+        {!isLogin && (
+          <>
+            <div style={{ marginBottom: '16px' }}>
+              <input
+                type="text"
+                placeholder="Адрес"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: '6px',
+                  border: '1px solid #444',
+                  backgroundColor: theme.inputBg,
+                  color: theme.text
+                }}
+              />
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <input
+                type="text"
+                placeholder="Телефон"
+                value={number}
+                onChange={(e) => setNumber(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: '6px',
+                  border: '1px solid #444',
+                  backgroundColor: theme.inputBg,
+                  color: theme.text
+                }}
+              />
+            </div>
+          </>
+        )}
         <button
           type="submit"
           style={{

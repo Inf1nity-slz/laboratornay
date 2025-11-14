@@ -4,6 +4,8 @@ import AppContext from '../context/AppContext';
 const DashboardPage = () => {
   const { user, isDark } = useContext(AppContext);
 
+  console.log('User in Dashboard:', user); 
+
   const theme = isDark ? {
     text: '#ffffff',
     cardBg: '#2d2d2d',
@@ -26,6 +28,7 @@ const DashboardPage = () => {
         <h3>Ваши данные:</h3>
         <p>Email: {user?.email}</p>
         <p>Дата регистрации: 07.11.2025</p>
+        <p>Role ID: {user?.role_id}</p>
       </div>
     </div>
   );
